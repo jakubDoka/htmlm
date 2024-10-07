@@ -1,4 +1,4 @@
-# htmlm (for a lack if free names)
+# htmlm (for a lack of free names)
 
 This crate implements simple html template macros without any dependencies. Use at your own risk.
 
@@ -45,4 +45,11 @@ let for_expr = htmlm::html! {
     </div>
 };
 assert_eq!(for_expr, "<div><div>a</div><div>b</div><div>c</div></div>");
+
+use std::fmt::Write;
+let mut buf = String::new();
+htmlm::write_html! { (buf)
+    <div>"hello there"</div>
+}
+assert_eq!(buf, "<div>hello there</div>");
 ```
