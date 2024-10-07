@@ -1,0 +1,13 @@
+[package]
+name = "htmlm"
+version = "0.2.0"
+edition = "2021"
+description = "html macro with no dependencies"
+license = "MIT"
+
+[workspace]
+members = ["htmlm-macro"]
+resolver = "2"
+
+[dependencies]
+htmlm-macro = { version = "0.1.0", path = "htmlm-macro" }
