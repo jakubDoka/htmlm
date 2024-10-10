@@ -388,11 +388,42 @@ impl State {
         Some(())
     }
 
+    fn nested(&mut self, trees: &mut Trees) -> Option<()> {
+        let ident = match trees.next() {
+            Some(proc_macro::TokenTree::Ident(ident)) => ident,
+            Some(g) => fatal_diag!(Error[g]: "expected identifier"),
+            None => fatal_diag!(Error: "expected identifier, got eof"),
+        };
+
+        let closing_pipe = trees.next();
+        if !matches!(&closing_pipe, Some(proc_macro::TokenTree::Punct(p)) if p.as_char() == '|') {
+            match closing_pipe {
+                Some(closing_pipe) => fatal_diag!(Error[closing_pipe]: "expected '|'"),
+                None => fatal_diag!(Error: "expected '|', got eof"),
+            }
+        }
+
+        self.flush_template();
+
+        write!(
+            &mut self.final_code,
+            "{{ let {ident} = &mut {};",
+            self.write_target
+        )
+        .unwrap();
+
+        let stream = self.expect_group(trees, proc_macro::Delimiter::Brace)?;
+        write!(&mut self.final_code, "{stream};}}").unwrap();
+
+        Some(())
+    }
+
     fn output_fmt(&mut self, trees: &mut Trees) -> Option<()> {
         while let Some(c) = trees.next() {
             match c {
                 proc_macro::TokenTree::Punct(p) if p.as_char() == '!' => self.no_escaping = true,
                 proc_macro::TokenTree::Punct(p) if p.as_char() == '<' => self.tag(p, trees)?,
+                proc_macro::TokenTree::Punct(p) if p.as_char() == '|' => self.nested(trees)?,
                 proc_macro::TokenTree::Literal(lit) => self
                     .template
                     .push_str(temp_str(&lit, &mut self.tstr).trim_matches('"')),

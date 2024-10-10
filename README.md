@@ -46,10 +46,15 @@ let for_expr = htmlm::html! {
 };
 assert_eq!(for_expr, "<div><div>a</div><div>b</div><div>c</div></div>");
 
+fn component(buf: &mut String, hello: &str) {
+    htmlm::write_html! { (buf)
+        <span>hello</span>
+    }
+}
 use std::fmt::Write;
 let mut buf = String::new();
 htmlm::write_html! { (buf)
-    <div>"hello there"</div>
+    <div>|f|{component(f, "hello")}" there"</div>
 }
-assert_eq!(buf, "<div>hello there</div>");
+assert_eq!(buf, "<div><span>hello</span> there</div>");
 ```
