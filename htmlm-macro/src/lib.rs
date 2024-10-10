@@ -85,7 +85,7 @@ impl State {
         }
         write!(
             self.final_code,
-            "write!({}, {:?}){};",
+            "{}.write_str({:?}){};",
             self.write_target, self.template, self.error_handler
         )
         .unwrap();
